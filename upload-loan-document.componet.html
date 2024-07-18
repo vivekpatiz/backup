@@ -1,78 +1,56 @@
-
 <div class="upload-loan-document-ctr">
     <form [formGroup]="uploadDocForm" novalidate>
-
         <div class="box compose-message">
-          <div class="box-head">{{ 'Upload Documents'|translate }}</div>
-          <div class="action-level-container" *ngIf="messageOptions.options.message">
-            <message-dynamic-content [options]="messageOptions.options"> </message-dynamic-content>
-          </div>
-          <div class="compose-content">
-          
-            
-            <div>
-              <div class="info-div">
-                <span class="info-text">{{'upload_info1'| translate}}</span>
-              </div>
-              <div class="info-div" >
-                <span class="info-text">{{'upload_info2'| translate}}</span>
-              </div>
-              
-              <div class="bond-container-outer" appDragDrop  (onFileDropped)="uploadFile($event)">
-                <!--File upload section-->
-                <div class="bond-container-inner">
-                  <p *ngIf="uploadSuc">Drag and Drop loan documents</p>
-                  <div class="box" *ngIf="uploadSuc" (click)="fileInput.click()">
-                    <input type="file" accept="application/pdf,image/png,.jpeg,.jpg" (change)="uploadFile($event.target.files)"
-                      name="bond-file" #fileInput id="bond-file" formControlName="uploadFile" class="inputfile inputfile-6"
-                      />
-            
-                    <label class="browsefile-text" for="file-7">or Browse File</label>
-            
-                  </div>
-                  <!-- <div class="file-upload-error" *ngIf="this.fileuploadError && empDetails && (empDetails.empStatus !='UNEMPLOYED' && empDetails.empStatus !='RETIRED')"><span class="input-error-lbl" >Please upload your payslip</span></div>
-                                                    <div class="file-upload-error" *ngIf="this.fileuploadError && empDetails && (empDetails.empStatus =='UNEMPLOYED' || empDetails.empStatus =='RETIRED')"><span class="input-error-lbl" >Please upload your proof of income</span></div>
-                                                    <div class="file-upload-error" *ngIf="this.fileuploadError && !empDetails"><span class="input-error-lbl" >Please upload your payslip</span></div> -->
-                </div>
-                <!--File upload progress section-->
-                <div class="bond-container-inner side-margin" *ngIf="!docUploadToUi && docUploadToUiProgress">
-                  <div><label for="file-uploading">{{fileName}}</label></div>
-                  <div class="progress-bar-area">
-                    <div id="progress">
-                      <div></div>
-                    </div>
-                    <div class="cancel-upload" (click)="cancelUpload()">x</div>
-                  </div>
-                </div>
-                <div class="bond-container-inner" *ngIf="docUploadToUi && !docUploadToUiProgress">
-            
-                  <p *ngIf="!uploadSuc"> Your loan document is uploaded successfully </p>
-                  <div class="box upload-complete">
-                    <div class="file-name"><label for="file-uploaded">{{fileName}}</label></div>
-            
-            
-            
-                  </div>
-                  <div class="file-upload-action">
-                    <div class="preview"><span class="icon icon-preview"></span><span class="preview-text"
-                        (click)="onPreviewClick()">Preview</span></div>
-                    <div class="delete"><span class="icon icon-delete"></span><span class="delete-text"
-                        (click)="onDeleteUploadedFile()">Delete</span></div>
-            
-                  </div>
-                </div>
-              </div>
+            <div class="box-head">{{ 'Upload Documents'|translate }}</div>
+            <div class="action-level-container" *ngIf="messageOptions.options.message">
+                <message-dynamic-content [options]="messageOptions.options"> </message-dynamic-content>
             </div>
-  
-  
-            
-          </div>
-          <div class="compose-btn-cntr">
-  
-            <!-- <button class="btn-back btn-medium compose-btn" (click)="closeComposeMail()">{{ 'cancel'|translate }}</button> -->
-  
-            <button class="btn-primary btn-medium compose-btn" (click)="sendMail()" [disabled]="!uploadDocForm.valid"[ngClass]="{'secure-message-compose':!uploadDocForm.valid}">{{ 'Upload'|translate }}</button>
-          </div>
+            <div class="compose-content">
+                <div>
+                    <div class="info-div">
+                        <span class="info-text">{{'upload_info1'| translate}}</span>
+                    </div>
+                    <div class="info-div">
+                        <span class="info-text">{{'upload_info2'| translate}}</span>
+                    </div>
+                    <div class="bond-container-outer" appDragDrop (onFileDropped)="uploadFile($event)">
+                        <!-- File upload section -->
+                        <div class="bond-container-inner">
+                            <p *ngIf="uploadSuc">Drag and Drop loan documents</p>
+                            <div class="box" *ngIf="uploadSuc" (click)="fileInput.click()">
+                                <input type="file" accept="application/pdf,image/png,.jpeg,.jpg" (change)="uploadFile($event.target.files)"
+                                    name="bond-file" #fileInput id="bond-file" formControlName="uploadFile" class="inputfile inputfile-6" multiple />
+                                <label class="browsefile-text" for="file-7">or Browse File</label>
+                            </div>
+                        </div>
+                        <!-- File upload progress section -->
+                        <div class="bond-container-inner side-margin" *ngIf="!docUploadToUi && docUploadToUiProgress">
+                            <div><label for="file-uploading">{{fileName}}</label></div>
+                            <div class="progress-bar-area">
+                                <div id="progress">
+                                    <div></div>
+                                </div>
+                                <div class="cancel-upload" (click)="cancelUpload()">x</div>
+                            </div>
+                        </div>
+                        <!-- Display uploaded files -->
+                        <div class="bond-container-inner" *ngFor="let file of uploadedFiles; let i = index">
+                            <div class="box upload-complete">
+                                <div class="file-name"><label for="file-uploaded">{{file.name}}</label></div>
+                            </div>
+                            <div class="file-upload-action">
+                                <div class="preview"><span class="icon icon-preview"></span><span class="preview-text"
+                                        (click)="onPreviewClick(file)">Preview</span></div>
+                                <div class="delete"><span class="icon icon-delete"></span><span class="delete-text"
+                                        (click)="onDeleteUploadedFile(i)">Delete</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="compose-btn-cntr">
+                <button class="btn-primary btn-medium compose-btn" (click)="sendMail()" [disabled]="!uploadDocForm.valid" [ngClass]="{'secure-message-compose':!uploadDocForm.valid}">{{ 'Upload'|translate }}</button>
+            </div>
         </div>
-      </form>
+    </form>
 </div>
