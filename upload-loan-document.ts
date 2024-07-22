@@ -47,4 +47,48 @@ export class UploadLoanDocumentComponent {
         console.log(this.uploadedFiles);
         // Additional logic for sending the email with the uploaded files
     }
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+
+  onFilesChange(event: any) {
+    const files = event.target.files;
+    if (files.length) {
+      this.convertFilesToBase64(files);
+    }
+  }
+
+  private convertFilesToBase64(files: FileList) {
+    const fileReaders: Promise<any>[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      fileReaders.push(this.readFileAsBase64(file));
+    }
+
+    Promise.all(fileReaders).then(base64Strings => {
+      console.log(base64Strings); // Array of base64 strings for each file
+    }).catch(error => {
+      console.error('Error reading files:', error);
+    });
+  }
+
+  private readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+}
 }
