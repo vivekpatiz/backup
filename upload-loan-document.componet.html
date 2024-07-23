@@ -1,56 +1,67 @@
-<div class="upload-loan-document-ctr">
-    <form [formGroup]="uploadDocForm" novalidate>
-        <div class="box compose-message">
-            <div class="box-head">{{ 'Upload Documents'|translate }}</div>
-            <div class="action-level-container" *ngIf="messageOptions.options.message">
-                <message-dynamic-content [options]="messageOptions.options"> </message-dynamic-content>
-            </div>
-            <div class="compose-content">
-                <div>
-                    <div class="info-div">
-                        <span class="info-text">{{'upload_info1'| translate}}</span>
-                    </div>
-                    <div class="info-div">
-                        <span class="info-text">{{'upload_info2'| translate}}</span>
-                    </div>
-                    <div class="bond-container-outer" appDragDrop (onFileDropped)="uploadFile($event)">
-                        <!-- File upload section -->
-                        <div class="bond-container-inner">
-                            <p *ngIf="uploadSuc">Drag and Drop loan documents</p>
-                            <div class="box" *ngIf="uploadSuc" (click)="fileInput.click()">
-                                <input type="file" accept="application/pdf,image/png,.jpeg,.jpg" (change)="uploadFile($event.target.files)"
-                                    name="bond-file" #fileInput id="bond-file" formControlName="uploadFile" class="inputfile inputfile-6" multiple />
-                                <label class="browsefile-text" for="file-7">or Browse File</label>
-                            </div>
-                        </div>
-                        <!-- File upload progress section -->
-                        <div class="bond-container-inner side-margin" *ngIf="!docUploadToUi && docUploadToUiProgress">
-                            <div><label for="file-uploading">{{fileName}}</label></div>
-                            <div class="progress-bar-area">
-                                <div id="progress">
-                                    <div></div>
-                                </div>
-                                <div class="cancel-upload" (click)="cancelUpload()">x</div>
-                            </div>
-                        </div>
-                        <!-- Display uploaded files -->
-                        <div class="bond-container-inner" *ngFor="let file of uploadedFiles; let i = index">
-                            <div class="box upload-complete">
-                                <div class="file-name"><label for="file-uploaded">{{file.name}}</label></div>
-                            </div>
-                            <div class="file-upload-action">
-                                <div class="preview"><span class="icon icon-preview"></span><span class="preview-text"
-                                        (click)="onPreviewClick(file)">Preview</span></div>
-                                <div class="delete"><span class="icon icon-delete"></span><span class="delete-text"
-                                        (click)="onDeleteUploadedFile(i)">Delete</span></div>
-                            </div>
-                        </div>
-                    </div>
+<div class="app-info-outer">
+  <!-- <form [formGroup]="uploadDocForm" novalidate> -->
+  <div class="upload-loan-header">Upload Documents</div>
+  <div >
+    <div class="info-div">
+        <span class="info-text">{{'upload_info1'| translate}}</span>
+    </div>
+    <div class="info-div">
+         <span class="info-text">{{'upload_info2'| translate}}</span>
+    </div>
+    <app-message-dynamic-content-impl-component [options]="messageOptions.options"> </app-message-dynamic-content-impl-component>
+    <div class="bond-container-outer" appDragDrop (onFileDropped)="uploadFile($event)">
+            <!--File upload section-->
+            <div class="bond-container-inner" *ngIf ="!docUploadToUi && !docUploadToUiProgress">
+                <p *ngIf="!isUploaded">Drag and Drop Loan Documents file</p>
+               
+                <div class="box">
+                <input type="file" (change)="uploadFile($event.target.files)" 
+                name="bond-file" 
+                 id="bond-file" 
+                        class="inputfile inputfile-6" 
+                         />
+                <label class="browsefile-text" for="bond-file">or Browse File</label>
+             
                 </div>
             </div>
-            <div class="compose-btn-cntr">
-                <button class="btn-primary btn-medium compose-btn" (click)="sendMail()" [disabled]="!uploadDocForm.valid" [ngClass]="{'secure-message-compose':!uploadDocForm.valid}">{{ 'Upload'|translate }}</button>
+            <div class="file-upload-error" *ngIf="this.fileuploadError">
+              <span class="input-error-lbl" *ngIf="!isUploaded">Please upload your Loan Documents</span>
             </div>
-        </div>
-    </form>
+          
+            <!--File upload progress section-->
+            <div class="bond-container-inner side-margin"  *ngIf ="!docUploadToUi && docUploadToUiProgress">
+                <div><label for="file-uploading">{{fileName}}</label></div>
+                <div class="progress-bar-area">
+                    <div id="progress">
+                        <div></div>
+                    </div>
+                    <div class="cancel-upload" (click)="cancelUpload()">x</div>
+                </div>  
+            </div>    
+            <div class="bond-container-inner" *ngIf ="docUploadToUi && !docUploadToUiProgress">
+              
+                <p  *ngIf="isUploaded"> Your Loan Documents is uploaded successfully </p>
+                <div class="box upload-complete">
+                    <div class="file-name"><label class="word-break" for="file-uploaded">{{fileName}}</label></div>
+                   
+                
+                    
+                </div>
+                <div class="file-upload-action">
+                    <div class="preview"><span class="icon icon-previewIcon"></span><span class="preview-text" (click)="onPreviewClick()">Preview</span></div>
+                    <div class="delete"><span class="icon icon-deleteIcon"></span><span class="delete-text" (click)="onDeleteUploadedFile()">Delete</span></div>
+                    
+                </div>
+            </div>
+    </div>
+    
+  </div>
+  <div class="third-level-container grid-column form-group">
+    <div class="button-container button-center fw">
+      <button class="action-btn btn btn-primary"
+       (click)="sendMail()" [disabled]="!validFile">{{ 'Upload'| translate }}</button>
+    </div>
+  </div>
+  <!-- //</form> -->
 </div>
+
