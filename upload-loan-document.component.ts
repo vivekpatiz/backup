@@ -53,84 +53,81 @@ export class UploadLoanDocumentMBComponent {
         });
     }
     uploadFile(event) {
-        let fileSize = 0
-        for (let j = 0; j < event.length; j++) {
-            fileSize = fileSize + event[j].size
-        }
-        console.log(event, "event");
+    let fileSize = 0;
+    for (let j = 0; j < event.length; j++) {
+        fileSize += event[j].size;
+    }
+    console.log(event, "event");
+    this.messageOptions.options.showMessageContent = false;
+    const _this = this;
+    let filebase64 = [];
+    this.uploadedFileBase64 = [];
+    let promises = [];
+
+    for (let i = 0; i < event.length; i++) {
         this.messageOptions.options.showMessageContent = false;
-        const _this = this;
-        let filebase64 = []
-        this.uploadedFileBase64 = []
-        for (let i = 0; i < event.length; i++) {
-            this.messageOptions.options.showMessageContent = false;
-            if (event[i] && (event[i].type == "image/jpeg" || event[i].type == "application/pdf" || event[i].type == "image/png")) {
-                if (fileSize > 5000000) {
-                    this.messageOptions.options.showMessageContent = true;
-                    this.messageOptions.options.isGeneric = false;
-                    this.messageOptions.options.messageType = "error";
-                    this.messageOptions.options.message = "Please select a file with size less than 5MB.";
-                    this.validFile = false;
-                } else {
-                    this.validFile = true;
-                    this.isUploaded = true
-                    this.fileuploadError = false;
-                    let _this = this;
-                    this.uploadedFiles.push(event[i]);
-                    var promise1 = this.readAsDataURL(event[i]);
-                    promise1.then(function (result) {
-                        //console.log(result);
-                        _this.imgSrcData = result;
-                        if (event[i].type) {
-                            if (event[i].type.includes('png') ||
-                                event[i].type.includes('jpg') ||
-                                event[i].type.includes('jpeg')) {
-                                var imageObj = new Image();
-                                let text = ''
-                                if (event[i].type.includes('jpg') || event[i].type.includes('jpeg')) {
-                                    text = 'image/jpeg'
-                                } else {
-                                    text = 'image/png'
-                                }
-                                imageObj.onload = function () {
-                                    _this.compressImage(imageObj, text);
-                                };
-                                imageObj.src = _this.imgSrcData
-                                filebase64.push(_this.imgSrcData)
-                            } else {
-                                filebase64.push(_this.imgSrcData)
-                            }
-                        }
-                        //console.log(_this.imgSrcData, "imgSrcData base 64");// <--- data: base64 
-
-                        _this.docUploadToUi = true;
-                        _this.docUploadToUiProgress = false;
-                    })
-
-
-                }
-            } else {
-                Loader.stop();
+        if (event[i] && (event[i].type == "image/jpeg" || event[i].type == "application/pdf" || event[i].type == "image/png")) {
+            if (fileSize > 5000000) {
                 this.messageOptions.options.showMessageContent = true;
                 this.messageOptions.options.isGeneric = false;
                 this.messageOptions.options.messageType = "error";
-                this.messageOptions.options.message = "The selected file cannot be uploaded. Only files with the following extensions are supported : .jpeg,.pdf,.png";
+                this.messageOptions.options.message = "Please select a file with size less than 5MB.";
+                this.validFile = false;
+            } else {
+                this.validFile = true;
+                this.isUploaded = true;
+                this.fileuploadError = false;
+                this.uploadedFiles.push(event[i]);
+                let promise = this.readAsDataURL(event[i]).then(result => {
+                    _this.imgSrcData = result;
+                    if (event[i].type) {
+                        if (event[i].type.includes('png') || event[i].type.includes('jpg') || event[i].type.includes('jpeg')) {
+                            let imageObj = new Image();
+                            let text = '';
+                            if (event[i].type.includes('jpg') || event[i].type.includes('jpeg')) {
+                                text = 'image/jpeg';
+                            } else {
+                                text = 'image/png';
+                            }
+                            imageObj.onload = function () {
+                                _this.compressImage(imageObj, text);
+                            };
+                            imageObj.src = _this.imgSrcData;
+                            filebase64.push(_this.imgSrcData);
+                        } else {
+                            filebase64.push(_this.imgSrcData);
+                        }
+                    }
+                    _this.docUploadToUi = true;
+                    _this.docUploadToUiProgress = false;
+                });
+                promises.push(promise);
             }
+        } else {
+            Loader.stop();
+            this.messageOptions.options.showMessageContent = true;
+            this.messageOptions.options.isGeneric = false;
+            this.messageOptions.options.messageType = "error";
+            this.messageOptions.options.message = "The selected file cannot be uploaded. Only files with the following extensions are supported : .jpeg,.pdf,.png";
         }
-        setTimeout(() => {
-            this.uploadedFileBase64 = filebase64
-            console.log(filebase64, 'filebase6666666')
-            for (let k = 0; k < filebase64.length; k++) {
-                this.uploadedFiles[k]['base64'] = filebase64[k]
-            }
-            this.dataCarrier.setCarrier("uploadedFiles", this.uploadedFiles)
-            console.log(this.uploadedFiles, "this.uploadedFilesthis.uploadedFiles")
-            this.uploadDocForm.patchValue({
-                uploadFile: this.uploadedFileBase64
-            });
-        }, 500)
-
     }
+
+    Promise.all(promises).then(() => {
+        _this.uploadedFileBase64 = filebase64;
+        console.log(filebase64, 'filebase6666666');
+        for (let k = 0; k < filebase64.length; k++) {
+            _this.uploadedFiles[k]['base64'] = filebase64[k];
+        }
+        _this.dataCarrier.setCarrier("uploadedFiles", _this.uploadedFiles);
+        console.log(_this.uploadedFiles, "this.uploadedFilesthis.uploadedFiles");
+        _this.uploadDocForm.patchValue({
+            uploadFile: _this.uploadedFileBase64
+        });
+    }).catch(error => {
+        console.error("Error processing files:", error);
+    });
+}
+
     checkFileTypeValidity(fileType,name){
         let obj = this;
         let validity = false;
